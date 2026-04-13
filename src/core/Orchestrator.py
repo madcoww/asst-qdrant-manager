@@ -15,7 +15,7 @@ from qdrant_client.models import PointStruct
 
 from src.common.Constant import Constants
 from src.common.LoggerManager import LoggerManager
-from src.core.embedding.EmbeddingProcessor import EmbeddingProcessor
+from src.core.embedding.OpenAIEmbeddingProcessor import OpenAIEmbeddingProcessor
 from src.core.parser.FileParser import FileParser
 from src.core.services.CollectionService import CollectionService
 from src.core.services.SnapshotService import SnapshotService
@@ -31,7 +31,7 @@ class Orchestrator:
             port=self.constants.QDRANT_PORT,
             timeout=self.constants.QDRANT_TIMEOUT,
         )
-        self.embedding_processor = EmbeddingProcessor()
+        self.embedding_processor = OpenAIEmbeddingProcessor()
         self.collection_service = CollectionService(self._qdrant_client)
         self.snapshot_service = SnapshotService(self._qdrant_client)
 

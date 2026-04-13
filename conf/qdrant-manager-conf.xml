@@ -45,11 +45,15 @@
     </property>
     <property>
         <name>embedder_port</name>
-        <value>38290</value>
+        <value>32765</value>
     </property>
     <property>
         <name>embedder_endpoint</name>
-        <value>/athena/embedder</value>
+        <value>v1</value>
+    </property>
+    <property>
+        <name>embedder_model</name>
+        <value>bge-m3</value>
     </property>
     <property>
         <name>embedder_batch_size</name>

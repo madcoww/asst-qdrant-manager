@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: asst-qdrant-manager-conf
+data:
+  qdrant-manager-conf.xml: |
+    <configuration>
+        <!-- Common settings -->
+        <property>
+            <name>qdrant_manager_svc</name>
+            <value>10.1.35.73</value>
+        </property>
+        <property>
+            <name>qdrant_manager_port</name>
+            <value>6335</value>
+        </property>
+        <property>
+            <name>qdrant_collection_endpoint</name>
+            <value>/asst/collection</value>
+        </property>
+        <property>
+            <name>qdrant_snapshots_endpoint</name>
+            <value>/asst/snapshots</value>
+        </property>
+        <!-- Qdrant settings -->
+        <property>
+            <name>qdrant_svc</name>
+            <value>10.1.35.73</value>
+        </property>
+        <property>
+            <name>qdrant_port</name>
+            <value>36333</value>
+        </property>
+        <property>
+            <name>qdrant_timeout</name>
+            <value>300.0</value>
+        </property>
+        <property>
+            <name>qdrant_data_volume</name>
+            <value>/eyeCloudAI/data/vectordb/docs</value>
+            <!--        <value>/qdrant/data</value>-->
+        </property>
+        <property>
+            <name>qdrant_snapshot_volume</name>
+            <value>/qdrant/snapshots</value>
+        </property>
+        <!-- Embedder settings -->
+        <property>
+            <name>embedder_svc</name>
+            <value>10.1.35.73</value>
+        </property>
+        <property>
+            <name>embedder_port</name>
+            <value>32765</value>
+        </property>
+        <property>
+            <name>embedder_endpoint</name>
+            <value>v1</value>
+        </property>
+        <property>
+            <name>embedder_model</name>
+            <value>bge-m3</value>
+        </property>
+        <property>
+            <name>embedder_batch_size</name>
+            <value>512</value>
+        </property>
+    </configuration>

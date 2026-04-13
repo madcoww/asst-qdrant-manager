@@ -28,4 +28,5 @@ class Constants(metaclass=Singleton):
     EMBEDDER_SVC = __config_manager.get('embedder_svc')
     EMBEDDER_PORT = int(cast(int, __config_manager.get('embedder_port')))
     EMBEDDER_ENDPOINT = __config_manager.get('embedder_endpoint')
+    EMBEDDER_MODEL = cast(str, __config_manager.get('embedder_model'))
     EMBEDDER_BATCH_SIZE = int(cast(int, __config_manager.get('embedder_batch_size')))
