@@ -8,7 +8,7 @@ data:
         <!-- Common settings -->
         <property>
             <name>qdrant_manager_svc</name>
-            <value>10.1.35.73</value>
+            <value>192.168.1.70</value>
         </property>
         <property>
             <name>qdrant_manager_port</name>
@@ -25,11 +25,11 @@ data:
         <!-- Qdrant settings -->
         <property>
             <name>qdrant_svc</name>
-            <value>10.1.35.73</value>
+            <value>192.168.1.70</value>
         </property>
         <property>
             <name>qdrant_port</name>
-            <value>36333</value>
+            <value>31633</value>
         </property>
         <property>
             <name>qdrant_timeout</name>
@@ -38,7 +38,6 @@ data:
         <property>
             <name>qdrant_data_volume</name>
             <value>/eyeCloudAI/data/vectordb/docs</value>
-            <!--        <value>/qdrant/data</value>-->
         </property>
         <property>
             <name>qdrant_snapshot_volume</name>

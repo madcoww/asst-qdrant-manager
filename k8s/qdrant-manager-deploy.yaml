@@ -1,4 +1,49 @@
+# PV
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: asst-docs-pv
+  finalizers: []
+spec:
+  capacity:
+    storage: 30Gi
+  accessModes:
+    - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: ""
+  hostPath:
+    path: /eyeCloudAI/data/vectordb/docs
+
 ---
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: asst-docs-pvc
+  finalizers: []
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 30Gi
+---
+# PVC
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: asst-docs-pvc
+  finalizers: []
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: ""
+  resources:
+    requests:
+      storage: 30Gi
+---
+# Deploy
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,6 +60,25 @@ spec:
       labels:
         app: asst-qdrant-manager
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: dgx70
+      initContainers:
+        - name: fix-permissions
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              chown -R 1000:1000 /qdrant/storage /qdrant/snapshots
+              chmod -R 755 /qdrant/storage /qdrant/snapshots
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: asst-qdrant-storage
+              mountPath: /qdrant/storage
+            - name: asst-qdrant-snapshots
+              mountPath: /qdrant/snapshots
+
       containers:
         - name: asst-qdrant
           image: registry.seculayer.com:31500/eyecloudai/asst-qdrant:3.0-2026-asst-R2
@@ -64,14 +128,14 @@ spec:
           imagePullPolicy: Always
           command: [ "python", "src/QdrantManagerServer.py" ]
           ports:
-              - containerPort: 6335
+            - containerPort: 6335
           env:
-              - name: TZ
-                value: Asia/Seoul
+            - name: TZ
+              value: Asia/Seoul
           volumeMounts:
             - name: timezone-config
               mountPath: /etc/localtime
-            - name: asst-qdrant-data-volume
+            - name: asst-docs-storage
               mountPath: /eyeCloudAI/data/vectordb/docs
             - name: asst-qdrant-manager-conf
               mountPath: /eyeCloudAI/app/conf
@@ -89,17 +153,17 @@ spec:
           hostPath:
             path: /eyeCloudAI/data/vectordb/qdrant/snapshots
 
-        - name: asst-qdrant-data-volume
-          hostPath:
-            path: /eyeCloudAI/data/vectordb/docs
+        - name: asst-docs-storage
+          persistentVolumeClaim:
+            claimName: asst-docs-pvc
 
         - name: asst-qdrant-manager-conf
           configMap:
             name: asst-qdrant-manager-conf
 
-      nodeSelector:
-        app: "true"
-        master: "true"
+#      nodeSelector:
+#        app: "true"
+#        master: "true"
 ---
 kind: Service
 apiVersion: v1
@@ -113,9 +177,9 @@ spec:
     - name: "qdrant"
       port: 6333
       targetPort: 6333
-      nodePort: 36333
+      nodePort: 31633
 
     - name: "qdrant-manager"
       port: 6335
       targetPort: 6335
-      nodePort: 36335
+      nodePort: 31635

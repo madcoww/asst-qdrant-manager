@@ -12,7 +12,7 @@ from src.common.LoggerManager import LoggerManager
 
 
 class OpenAIEmbeddingProcessor:
-    def __init__(self, api_key: str = "dummy"):
+    def __init__(self, api_key: str = 'dummy'):
         base_url = f"http://{Constants.EMBEDDER_SVC}:{Constants.EMBEDDER_PORT}/{Constants.EMBEDDER_ENDPOINT}"
         self.client = AsyncOpenAI(api_key=api_key, base_url=base_url)
         self.model = Constants.EMBEDDER_MODEL
@@ -54,11 +54,11 @@ class OpenAIEmbeddingProcessor:
         try:
             response = await self.client.embeddings.create(
                 model=self.model,
-                input=["test"],
+                input=['test'],
             )
 
             if not response.data or not response.data[0].embedding:
-                raise ValueError("Invalid response: missing or empty embedding")
+                raise ValueError('Invalid response: missing or empty embedding')
 
             dim = len(response.data[0].embedding)
             self.dim_cache = dim
@@ -74,5 +74,5 @@ class OpenAIEmbeddingProcessor:
         if self.dim_cache is not None:
             return self.dim_cache
 
-        self.logger.info("Embedding dimension not cached — fetching from embedder...")
+        self.logger.info('Embedding dimension not cached — fetching from embedder...')
         return await self.fetch_dim()
