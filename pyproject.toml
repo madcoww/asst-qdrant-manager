@@ -14,7 +14,7 @@ qdrant-client = "^1.15.1"
 python-multipart = "^0.0.20"
 aiofiles = "^24.1.0"
 httpx = "^0.28.1"
-opendataloader-pdf = "^1.12.0"
+opendataloader-pdf = ">=2.2.1"
 langchain-text-splitters = "^1.0.0"
 openai = "^2.31.0"
 

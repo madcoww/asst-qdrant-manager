@@ -9,6 +9,7 @@ import csv
 import json
 import re
 from io import StringIO
+from pathlib import Path
 
 import aiofiles
 import opendataloader_pdf
@@ -147,25 +148,27 @@ class FileParser:
         PDF 파일을 마크다운으로 변환 후 청크 단위로 처리
         """
         try:
-            # PDF → MD 변환
-            opendataloader_pdf.run(
-                input_path=file_path,
-                replace_invalid_chars=' ',
-                generate_markdown=True,
+            output_dir = Path(file_path).parent / Path(file_path).stem
+            output_dir.mkdir(exist_ok=True)
+
+            opendataloader_pdf.convert(
+                input_path=[file_path],
+                output_dir=str(output_dir),
+                format="markdown,json",
+                markdown_page_separator="<!-- PAGE_BREAK: %page-number% -->",
             )
 
-            # MD 파일 경로 생성
-            md_file_path: str = file_path.replace('.pdf', '.md')
+            md_files = list(Path(output_dir).glob("*.md"))
+            md_file_path = str(md_files[0])
             self.logger.info(f"PDF converted to markdown: {md_file_path}")
 
             # MD 파일 읽기
             markdown_content: str = await self._read_markdown_file(md_file_path)
-
             # 전처리
             preprocessed_content: str = self._preprocess_markdown(markdown_content)
 
             # 청킹
-            chunks: list[dict] = self._chunk_markdown(
+            chunks: list[dict] = self._chunk_markdown_with_page(
                 content=preprocessed_content,
                 chunk_size=chunk_size,
                 chunk_overlap=chunk_overlap,
@@ -203,8 +206,8 @@ class FileParser:
         return content.strip()
 
     @staticmethod
-    def _chunk_markdown(content: str, chunk_size: int, chunk_overlap: int) -> list[dict]:
-        """마크 다운 컨텐츠를 청크 단위로 분할하여 반환"""
+    def _chunk_markdown_with_page(content: str, chunk_size: int, chunk_overlap: int) -> list[dict]:
+        """마크다운 컨텐츠를 청크 단위로 분할하여 반환 (page_number 메타데이터 포함)"""
         header_splitter = MarkdownHeaderTextSplitter(
             headers_to_split_on=[
                 ('#', 'h1'),
@@ -224,15 +227,26 @@ class FileParser:
         final_chunks: list[Document] = recursive_splitter.split_documents(header_chunks)
 
         chunks_with_metadata: list[dict] = []
+        current_page = 1
 
         for idx, chunk in enumerate(final_chunks):
+            markers = re.findall(r'<!--\s*PAGE_BREAK:\s*(\d+)\s*-->', chunk.page_content)
+            chunk_page = current_page
+            if markers:
+                current_page = int(markers[-1])
+
+            text = re.sub(r'<!--\s*PAGE_BREAK:\s*\d+\s*-->\n?', '', chunk.page_content).strip()
+            if not text:
+                continue
+
             chunks_with_metadata.append({
                 'chunk_id': idx,
-                'text': chunk.page_content,
+                'text': text,
                 'metadata': {
                     'h1': chunk.metadata.get('h1', ''),
                     'h2': chunk.metadata.get('h2', ''),
                     'h3': chunk.metadata.get('h3', ''),
+                    'page_number': chunk_page
                 },
             })
 

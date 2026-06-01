@@ -6,7 +6,7 @@ DockerRun = docker run
 # Docker 이미지 이름 및 버전 지정
 IMAGE		:= registry.seculayer.com:31500/eyecloudai/asst-qdrant-manager
 VERSION 	:= 3.0
-REVISION	:= 2026-asst-R2
+REVISION	:= 2026-asst-R3
 
 # 경로 지정
 NAME	:=  asst-qdrant-manager
